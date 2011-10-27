@@ -32,6 +32,26 @@ describe Track do
     end
   end
 
+  describe 'simple track' do
+    it 'should have only one flight' do
+      t = Track.make!(:flight => flight)
+      t.flights.should == [flight]
+    end
+  end
+
+  describe 'complex track' do
+    it 'should have all the flights from its subtracks' do
+      cities = City.make!(6)
+      flights = (1..5).map{ |n| Flight.make!(:origin => cities[n-1], :destination => cities[n]) }
+      tracks = flights.map { |f| Track.make!(:flight => f) }
+      track12 = Track.make!(:track1 => tracks[0], :track2 => tracks[1])
+      track34 = Track.make!(:track1 => tracks[2], :track2 => tracks[3])
+      track345 = Track.make!(:track1 => track34, :track2 => tracks[4])
+      track = Track.make!(:track1 => track12, :track2 => track345)
+      track.flights.should == flights
+    end
+  end
+
   describe 'complex track' do
 
     before do
@@ -50,7 +70,6 @@ describe Track do
         :arrival => DateTime.parse('2011-01-01T18:00:00Z'),
         :price => 250
       })
-
     end
 
     it 'should add new track to the tail of existing one' do

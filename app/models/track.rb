@@ -13,6 +13,14 @@ class Track < ActiveRecord::Base
 
   after_save :construct_complex_tracks
 
+  def flights
+    if flight.nil?
+      track1.flights + track2.flights
+    else
+      [flight]
+    end
+  end
+
   def self.create_for flight
     track = flight.build_track
     [:origin_id, :destination_id, :departure, :arrival, :price].each do |p|
