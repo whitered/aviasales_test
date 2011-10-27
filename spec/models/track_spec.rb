@@ -28,7 +28,7 @@ describe Track do
 
     it 'should set default values to attributes' do
       subject.transfers_number.should == 0
-      subject.transfers_minutes.should == 0
+      subject.transfer_minutes.should == 0
     end
   end
 
@@ -55,7 +55,7 @@ describe Track do
     t13.departure.should == f12.departure
     t13.arrival.should == f23.arrival
     t13.transfers_number.should == 1
-    t13.transfers_minutes.should == 60
+    t13.transfer_minutes.should == 60
     t13.price.should == 350
   end
 

@@ -19,7 +19,7 @@ class Track < ActiveRecord::Base
       track[p] = flight[p]
     end
     track.transfers_number = 0
-    track.transfers_minutes = 0
+    track.transfer_minutes = 0
     track.save!
     track
   end
@@ -46,7 +46,7 @@ class Track < ActiveRecord::Base
       t.departure = a.departure
       t.arrival = b.arrival
       t.price = a.price + b.price
-      t.transfers_minutes = ((b.departure - a.arrival) / 60).round
+      t.transfer_minutes = ((b.departure - a.arrival) / 60).round
       t.transfers_number = a.transfers_number + b.transfers_number + 1
       t.track1 = a
       t.track2 = b

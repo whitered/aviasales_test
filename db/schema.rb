@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111026182316) do
+ActiveRecord::Schema.define(:version => 20111027142808) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -40,7 +40,7 @@ ActiveRecord::Schema.define(:version => 20111026182316) do
     t.datetime "departure"
     t.datetime "arrival"
     t.integer  "transfers_number"
-    t.integer  "transfers_minutes"
+    t.integer  "transfer_minutes"
     t.integer  "price"
     t.integer  "flight_id"
     t.integer  "track1_id"
