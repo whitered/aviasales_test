@@ -12,6 +12,7 @@ class Track < ActiveRecord::Base
   belongs_to :track2, :class_name => 'Track'
 
   after_save :construct_complex_tracks
+  after_destroy :destroy_complex_tracks
 
   def flights
     if flight.nil?
@@ -75,6 +76,11 @@ class Track < ActiveRecord::Base
       t.track1 = a
       t.track2 = b
     end
+  end
+
+  def destroy_complex_tracks
+    Track.destroy_all :track1_id => self.id
+    Track.destroy_all :track2_id => self.id
   end
 
 end

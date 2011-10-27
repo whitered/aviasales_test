@@ -133,6 +133,12 @@ describe Track do
       t.flights.should == [@f12, @f23, @f34]
     end
 
+    it 'should destroy dependent tracks when destroying itself' do
+      @f12.save!
+      @f23.save!
+      lambda { Track.destroy(@f12.track) }.should change { Track.all.size }.from(3).to(1)
+    end
+
   end
 
 end
