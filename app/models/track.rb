@@ -27,15 +27,33 @@ class Track < ActiveRecord::Base
   private
 
   def construct_complex_tracks
-    arrival_from = departure - MAX_TRANSFER_DURATION
-    arrival_to = departure - MIN_TRANSFER_DURATION
+    Track.find_heads_for self
+    Track.find_tails_for self
+  end
+
+  def self.find_heads_for flight
+    arrival_from = flight.departure - MAX_TRANSFER_DURATION
+    arrival_to = flight.departure - MIN_TRANSFER_DURATION
     tracks = Track.where(
       :arrival => (arrival_from..arrival_to),
-      :destination_id => origin_id,
-      :transfers_number => (0..MAX_TRANSFERS_NUMBER - 1)
+      :destination_id => flight.origin_id,
+      :transfers_number => (0..MAX_TRANSFERS_NUMBER - flight.transfers_number - 1)
     )
     tracks.each do |t|
-      Track.join_tracks(t, self)
+      Track.join_tracks(t, flight)
+    end
+  end
+
+  def self.find_tails_for flight
+    arrival_from = flight.arrival + MIN_TRANSFER_DURATION
+    arrival_to = flight.arrival + MAX_TRANSFER_DURATION
+    tracks = Track.where(
+      :arrival => (arrival_from..arrival_to),
+      :origin_id => flight.destination_id,
+      :transfers_number => (0..MAX_TRANSFERS_NUMBER - flight.transfers_number - 1)
+    )
+    tracks.each do |t|
+      Track.join_tracks(flight, t)
     end
   end
 

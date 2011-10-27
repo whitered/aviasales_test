@@ -32,31 +32,50 @@ describe Track do
     end
   end
 
-  it 'should create complex track, adding new track to the tail of existing one' do
-    c1, c2, c3 = City.make!(3)
-    f12 = Flight.create do |f|
-      f.origin = c1
-      f.destination = c2
-      f.departure = DateTime.parse('2011-01-01T12:00:00Z')
-      f.arrival = DateTime.parse('2011-01-01T14:00:00Z')
-      f.price = 100
-    end
-    f23 = Flight.new do |f|
-      f.origin = c2
-      f.destination = c3
-      f.departure = DateTime.parse('2011-01-01T15:00:00Z')
-      f.arrival = DateTime.parse('2011-01-01T18:00:00Z')
-      f.price = 250
+  describe 'creation of complex track' do
+
+    before do
+      @c1, @c2, @c3 = City.make!(3)
+      @f12 = Flight.new({
+        :origin => @c1,
+        :destination => @c2,
+        :departure => DateTime.parse('2011-01-01T12:00:00Z'),
+        :arrival => DateTime.parse('2011-01-01T14:00:00Z'),
+        :price => 100
+      })
+      @f23 = Flight.new({
+        :origin => @c2,
+        :destination => @c3,
+        :departure => DateTime.parse('2011-01-01T15:00:00Z'),
+        :arrival => DateTime.parse('2011-01-01T18:00:00Z'),
+        :price => 250
+      })
+
     end
 
-    lambda { f23.save }.should change { Track.find_by_origin_id_and_destination_id(c1.id, c3.id) }.from(nil)
+    it 'should create complex track, adding new track to the tail of existing one' do
+      @f12.save!
+      lambda { @f23.save }.should change { Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id) }.from(nil)
 
-    t13 = Track.find_by_origin_id_and_destination_id(c1.id, c3.id)
-    t13.departure.should == f12.departure
-    t13.arrival.should == f23.arrival
-    t13.transfers_number.should == 1
-    t13.transfer_minutes.should == 60
-    t13.price.should == 350
+      t13 = Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id)
+      t13.departure.should == @f12.departure
+      t13.arrival.should == @f23.arrival
+      t13.transfers_number.should == 1
+      t13.transfer_minutes.should == 60
+      t13.price.should == 350
+    end
+
+    it 'should create complex track, prepending new track to the head of existing one' do
+      @f23.save!
+      lambda { @f12.save }.should change { Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id) }.from(nil)
+
+      t13 = Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id)
+      t13.departure.should == @f12.departure
+      t13.arrival.should == @f23.arrival
+      t13.transfers_number.should == 1
+      t13.transfer_minutes.should == 60
+      t13.price.should == 350
+    end
   end
 
 end
