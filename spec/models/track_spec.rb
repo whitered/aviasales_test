@@ -32,7 +32,7 @@ describe Track do
     end
   end
 
-  describe 'creation of complex track' do
+  describe 'complex track' do
 
     before do
       @c1, @c2, @c3 = City.make!(3)
@@ -53,7 +53,7 @@ describe Track do
 
     end
 
-    it 'should create complex track, adding new track to the tail of existing one' do
+    it 'should add new track to the tail of existing one' do
       @f12.save!
       lambda { @f23.save }.should change { Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id) }.from(nil)
 
@@ -65,7 +65,7 @@ describe Track do
       t13.price.should == 350
     end
 
-    it 'should create complex track, prepending new track to the head of existing one' do
+    it 'should prepend new track to the head of existing one' do
       @f23.save!
       lambda { @f12.save }.should change { Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id) }.from(nil)
 
@@ -76,6 +76,31 @@ describe Track do
       t13.transfer_minutes.should == 60
       t13.price.should == 350
     end
+
+    it 'should not be created if transfer time is too long' do
+      @f23.departure = DateTime.parse('2011-11-01T15:00:00Z')
+      @f23.arrival = DateTime.parse('2011-11-01T18:00:00Z')
+      @f12.save!
+      @f23.save!
+      Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id).should be_nil
+    end
+
+    it 'should not be created if transfer time is too short' do
+      @f23.departure = DateTime.parse('2011-01-01T14:01:00Z')
+      @f23.arrival = DateTime.parse('2011-01-01T18:00:00Z')
+      @f12.save!
+      @f23.save!
+      Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id).should be_nil
+    end
+
+    it 'should not be created if transfers number is too big' do
+      @f12.save!
+      t = Track.find_by_flight_id(@f12)
+      t.update_attribute(:transfers_number, 10)
+      @f23.save!
+      Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id).should be_nil
+    end
+
   end
 
 end
