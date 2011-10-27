@@ -17,11 +17,7 @@ class Flight < ActiveRecord::Base
   private
 
   def create_track
-    track = build_track
-    [:origin_id, :destination_id, :departure, :arrival, :price].each do |p|
-      track[p] = self[p]
-    end
-    track.save!
+    Track.create_for self
   end
 
   def destroy_track
