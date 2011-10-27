@@ -28,7 +28,6 @@ describe Track do
 
     it 'should set default values to attributes' do
       subject.transfers_number.should == 0
-      subject.transfer_minutes.should == 0
     end
   end
 
@@ -36,19 +35,6 @@ describe Track do
     it 'should have only one flight' do
       t = Track.make!(:flight => flight)
       t.flights.should == [flight]
-    end
-  end
-
-  describe 'complex track' do
-    it 'should have all the flights from its subtracks' do
-      cities = City.make!(6)
-      flights = (1..5).map{ |n| Flight.make!(:origin => cities[n-1], :destination => cities[n]) }
-      tracks = flights.map { |f| Track.make!(:flight => f) }
-      track12 = Track.make!(:track1 => tracks[0], :track2 => tracks[1])
-      track34 = Track.make!(:track1 => tracks[2], :track2 => tracks[3])
-      track345 = Track.make!(:track1 => track34, :track2 => tracks[4])
-      track = Track.make!(:track1 => track12, :track2 => track345)
-      track.flights.should == flights
     end
   end
 
@@ -72,6 +58,17 @@ describe Track do
       })
     end
 
+    it 'should have all the flights from its subtracks' do
+      cities = City.make!(6)
+      flights = (1..5).map{ |n| Flight.make!(:origin => cities[n-1], :destination => cities[n]) }
+      tracks = flights.map { |f| Track.make!(:flight => f) }
+      track12 = Track.make!(:track1 => tracks[0], :track2 => tracks[1])
+      track34 = Track.make!(:track1 => tracks[2], :track2 => tracks[3])
+      track345 = Track.make!(:track1 => track34, :track2 => tracks[4])
+      track = Track.make!(:track1 => track12, :track2 => track345)
+      track.flights.should == flights
+    end
+
     it 'should add new track to the tail of existing one' do
       @f12.save!
       lambda { @f23.save }.should change { Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id) }.from(nil)
@@ -80,7 +77,6 @@ describe Track do
       t13.departure.should == @f12.departure
       t13.arrival.should == @f23.arrival
       t13.transfers_number.should == 1
-      t13.transfer_minutes.should == 60
       t13.price.should == 350
     end
 
@@ -92,7 +88,6 @@ describe Track do
       t13.departure.should == @f12.departure
       t13.arrival.should == @f23.arrival
       t13.transfers_number.should == 1
-      t13.transfer_minutes.should == 60
       t13.price.should == 350
     end
 

@@ -22,6 +22,5 @@ Track.blueprint do
   departure { 2.hours.from_now }
   arrival { 4.hours.from_now }
   price { 1000 }
-  transfer_minutes { 0 }
   transfers_number { 0 }
 end
