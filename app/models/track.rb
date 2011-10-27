@@ -32,41 +32,61 @@ class Track < ActiveRecord::Base
     track
   end
 
-  private
+private
 
   def construct_complex_tracks
-    Track.find_heads_for self
-    Track.find_tails_for self
+    find_heads
+    find_tails
   end
 
-  def self.find_heads_for flight
-    arrival_from = flight.departure - MAX_TRANSFER_DURATION
-    arrival_to = flight.departure - MIN_TRANSFER_DURATION
-    tracks = Track.where(
-      :arrival => (arrival_from..arrival_to),
-      :destination_id => flight.origin_id,
-      :transfers_number => (0..MAX_TRANSFERS_NUMBER - flight.transfers_number - 1)
-    )
-    tracks.each do |t|
-      Track.join_tracks(t, flight)
+  def allowed_transfers min
+    min = 0 if min < 0
+    max = MAX_TRANSFERS_NUMBER - min
+    if max < min
+      nil
+    elsif max = min
+      min
+    else
+      (min..min + 1)
     end
   end
 
-  def self.find_tails_for flight
-    arrival_from = flight.arrival + MIN_TRANSFER_DURATION
-    arrival_to = flight.arrival + MAX_TRANSFER_DURATION
+  # to keep track balanced, head can have the same amount or one more transfer than tail
+  def find_heads
+    transfers = allowed_transfers(transfers_number)
+    return if transfers.nil?
+    arrival_from = departure - MAX_TRANSFER_DURATION
+    arrival_to = departure - MIN_TRANSFER_DURATION
+
     tracks = Track.where(
       :arrival => (arrival_from..arrival_to),
-      :origin_id => flight.destination_id,
-      :transfers_number => (0..MAX_TRANSFERS_NUMBER - flight.transfers_number - 1)
+      :destination_id => origin_id,
+      :transfers_number => transfers
     )
     tracks.each do |t|
-      Track.join_tracks(flight, t)
+      Track.join_tracks(t, self)
+    end
+  end
+
+  # tail can have the same amount or one less transfer than head
+  def find_tails
+    transfers = (transfers_number == 0) ? 0 : allowed_transfers(transfers_number - 1)
+    return if transfers.nil?
+    arrival_from = arrival + MIN_TRANSFER_DURATION
+    arrival_to = arrival + MAX_TRANSFER_DURATION
+
+    tracks = Track.where(
+      :arrival => (arrival_from..arrival_to),
+      :origin_id => destination_id,
+      :transfers_number => transfers
+    )
+    tracks.each do |t|
+      Track.join_tracks(self, t)
     end
   end
 
   def self.join_tracks a,b
-    Track.create do |t|
+    Track.create! do |t|
       t.origin_id = a.origin_id
       t.destination_id = b.destination_id
       t.departure = a.departure

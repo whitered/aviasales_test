@@ -11,6 +11,7 @@ describe Track do
   let :flight do
     f = Flight.make
     f.origin, f.destination = City.make!(2)
+    f.save!
     f
   end
 
@@ -20,7 +21,7 @@ describe Track do
 
     subject { Track.create_for flight }
 
-    [:origin, :destination, :departure, :arrival, :price].each do |p|
+    [:origin_id, :destination_id, :departure, :arrival, :price].each do |p|
       it "should copy #{p.to_s} from flight" do
         subject[p].should == flight[p]
       end
@@ -131,6 +132,7 @@ describe Track do
       t.arrival.should == @f34.arrival
       t.transfers_number.should == 2
       t.flights.should == [@f12, @f23, @f34]
+      t.price.should == 850
     end
 
     it 'should destroy dependent tracks when destroying itself' do
@@ -138,6 +140,20 @@ describe Track do
       @f23.save!
       lambda { Track.destroy(@f12.track) }.should change { Track.all.size }.from(3).to(1)
     end
+
+    it 'should not duplicate tracks with same flights' do
+      @c4 = City.make!
+      @f34 = Flight.make!({
+        :origin => @c3,
+        :destination => @c4,
+        :departure => DateTime.parse('2011-01-01T18:40:00Z'),
+        :arrival => DateTime.parse('2011-01-01T21:00:00Z'),
+        :price => 500
+      })
+      @f12.save!
+      @f23.save!
+      Track.find_all_by_origin_id_and_destination_id(@c1.id, @c4.id).size.should == 1
+     end
 
   end
 
