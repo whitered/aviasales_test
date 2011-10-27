@@ -35,6 +35,13 @@ gem 'therubyracer'
 group :test do
   # Pretty printed test output
   gem 'turn', :require => false
+  gem 'guard-rspec'
+  gem 'machinist', '> 2.0.0.beta'
+
+  if RUBY_PLATFORM =~ /linux/i
+    gem 'rb-inotify'
+    gem 'libnotify'
+  end
 end
 
 group :development, :test do
