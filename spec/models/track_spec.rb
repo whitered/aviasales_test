@@ -56,14 +56,14 @@ describe Track do
 
     before do
       @c1, @c2, @c3 = City.make!(3)
-      @f12 = Flight.new({
+      @f12 = Flight.make({
         :origin => @c1,
         :destination => @c2,
         :departure => DateTime.parse('2011-01-01T12:00:00Z'),
         :arrival => DateTime.parse('2011-01-01T14:00:00Z'),
         :price => 100
       })
-      @f23 = Flight.new({
+      @f23 = Flight.make({
         :origin => @c2,
         :destination => @c3,
         :departure => DateTime.parse('2011-01-01T15:00:00Z'),
@@ -118,6 +118,24 @@ describe Track do
       t.update_attribute(:transfers_number, 10)
       @f23.save!
       Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id).should be_nil
+    end
+
+    it 'should create triple track when middle chain is created' do
+      @c4 = City.make!
+      @f34 = Flight.make!({
+        :origin => @c3,
+        :destination => @c4,
+        :departure => DateTime.parse('2011-01-01T18:40:00Z'),
+        :arrival => DateTime.parse('2011-01-01T21:00:00Z'),
+        :price => 500
+      })
+      @f12.save!
+      lambda { @f23.save }.should change { Track.find_by_origin_id_and_destination_id(@c1.id, @c4.id) }.from(nil)
+      t = Track.find_by_origin_id_and_destination_id(@c1.id, @c4.id)
+      t.departure.should == @f12.departure
+      t.arrival.should == @f34.arrival
+      t.transfers_number.should == 2
+      t.flights.should == [@f12, @f23, @f34]
     end
 
   end
