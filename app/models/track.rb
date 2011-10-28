@@ -39,21 +39,22 @@ private
     find_tails
   end
 
-  def allowed_transfers min
-    min = 0 if min < 0
-    max = MAX_TRANSFERS_NUMBER - min
-    if max < min
+  def calculate_transfers_range current_transfers, current_is_tail
+    limit = MAX_TRANSFERS_NUMBER - current_transfers - 1
+    max = current_is_tail ? current_transfers + 1 : current_transfers
+    min = (max > 0) ? max - 1 : max
+    if min > limit
       nil
-    elsif max = min
+    elsif min == limit || min == max
       min
     else
-      (min..min + 1)
+      (min..max)
     end
   end
 
   # to keep track balanced, head can have the same amount or one more transfer than tail
   def find_heads
-    transfers = allowed_transfers(transfers_number)
+    transfers = calculate_transfers_range(transfers_number, true)
     return if transfers.nil?
     arrival_from = departure - MAX_TRANSFER_DURATION
     arrival_to = departure - MIN_TRANSFER_DURATION
@@ -70,7 +71,7 @@ private
 
   # tail can have the same amount or one less transfer than head
   def find_tails
-    transfers = (transfers_number == 0) ? 0 : allowed_transfers(transfers_number - 1)
+    transfers = calculate_transfers_range(transfers_number, false)
     return if transfers.nil?
     departure_from = arrival + MIN_TRANSFER_DURATION
     departure_to = arrival + MAX_TRANSFER_DURATION

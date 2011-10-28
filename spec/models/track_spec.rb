@@ -46,15 +46,15 @@ describe Track do
       @f12 = Flight.make({
         :origin => @c1,
         :destination => @c2,
-        :departure => DateTime.parse('2011-01-01T12:00:00Z'),
-        :arrival => DateTime.parse('2011-01-01T14:00:00Z'),
+        :departure => DateTime.parse('2011-01-01 12:00:00Z'),
+        :arrival => DateTime.parse('2011-01-01 14:00:00Z'),
         :price => 100
       })
       @f23 = Flight.make({
         :origin => @c2,
         :destination => @c3,
-        :departure => DateTime.parse('2011-01-01T15:00:00Z'),
-        :arrival => DateTime.parse('2011-01-01T18:00:00Z'),
+        :departure => DateTime.parse('2011-01-01 15:00:00Z'),
+        :arrival => DateTime.parse('2011-01-01 18:00:00Z'),
         :price => 250
       })
     end
@@ -93,16 +93,16 @@ describe Track do
     end
 
     it 'should not be created if transfer time is too long' do
-      @f23.departure = DateTime.parse('2011-11-01T15:00:00Z')
-      @f23.arrival = DateTime.parse('2011-11-01T18:00:00Z')
+      @f23.departure = DateTime.parse('2011-11-01 15:00:00Z')
+      @f23.arrival = DateTime.parse('2011-11-01 18:00:00Z')
       @f12.save!
       @f23.save!
       Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id).should be_nil
     end
 
     it 'should not be created if transfer time is too short' do
-      @f23.departure = DateTime.parse('2011-01-01T14:01:00Z')
-      @f23.arrival = DateTime.parse('2011-01-01T18:00:00Z')
+      @f23.departure = DateTime.parse('2011-01-01 14:01:00Z')
+      @f23.arrival = DateTime.parse('2011-01-01 18:00:00Z')
       @f12.save!
       @f23.save!
       Track.find_by_origin_id_and_destination_id(@c1.id, @c3.id).should be_nil
@@ -121,8 +121,8 @@ describe Track do
       @f34 = Flight.make!({
         :origin => @c3,
         :destination => @c4,
-        :departure => DateTime.parse('2011-01-01T18:40:00Z'),
-        :arrival => DateTime.parse('2011-01-01T21:00:00Z'),
+        :departure => DateTime.parse('2011-01-01 18:40:00Z'),
+        :arrival => DateTime.parse('2011-01-01 21:00:00Z'),
         :price => 500
       })
       @f12.save!
@@ -146,8 +146,8 @@ describe Track do
       @f34 = Flight.make!({
         :origin => @c3,
         :destination => @c4,
-        :departure => DateTime.parse('2011-01-01T18:40:00Z'),
-        :arrival => DateTime.parse('2011-01-01T21:00:00Z'),
+        :departure => DateTime.parse('2011-01-01 18:40:00Z'),
+        :arrival => DateTime.parse('2011-01-01 21:00:00Z'),
         :price => 500
       })
       @f12.save!
@@ -155,15 +155,15 @@ describe Track do
       Track.find_all_by_origin_id_and_destination_id(@c1.id, @c4.id).size.should == 1
     end
 
-    context 'join two tracks' do
+    context 'tracks connection time' do
 
       before do
         @c1, @c2, @c3 = City.make!(3)
-        @early_time = DateTime.parse('2011-01-01T00:00:00')
-        @time1 = DateTime.parse('2011-01-18T03:00:00')
-        @time2 = DateTime.parse('2011-01-18T12:00:00')
-        @time3 = DateTime.parse('2011-01-18T21:00:00')
-        @late_time = DateTime.parse('2011-02-01T00:00:00')
+        @early_time = DateTime.parse('2011-01-01 00:00:00')
+        @time1 = DateTime.parse('2011-01-18 03:00:00')
+        @time2 = DateTime.parse('2011-01-18 12:00:00')
+        @time3 = DateTime.parse('2011-01-18 21:00:00')
+        @late_time = DateTime.parse('2011-02-01 00:00:00')
       end
 
       def make_flight(origin, destination, departure, arrival, save)
@@ -190,7 +190,7 @@ describe Track do
         f1 = make_flight(@c2, @c3, @time1, @late_time, true)
         f2 = make_flight(@c2, @c3, @time2, @late_time, true)
         f3 = make_flight(@c2, @c3, @time3, @late_time, true)
-        arrival = DateTime.parse('2011-01-18T02:50:00')
+        arrival = DateTime.parse('2011-01-18 02:50:00')
         f = make_flight(@c1, @c2, @early_time, arrival, false)
         lambda do
           f.save
@@ -199,6 +199,37 @@ describe Track do
         tracks.size.should == 1
         tracks.first.flights.should == [f, f2]
       end
+    end
+
+    context 'tracks connection transfers number' do
+
+      before do
+        @c1, @c2, @c3 = City.make!(3)
+        @tail = Track.make!(
+          :origin => @c2,
+          :destination => @c3,
+          :departure => DateTime.parse('2011-11-11 02:00:00'),
+          :arrival => DateTime.parse('2011-11-11 03:00:00'),
+          :transfers_number => 1
+        )
+        @head = Track.make(
+          :origin => @c1, 
+          :destination => @c2, 
+          :departure => DateTime.parse('2011-11-11 00:00:00'),
+          :arrival => DateTime.parse('2011-11-11 01:00:00')
+        )
+      end
+
+      it 'should be able to reach max transfers number' do
+        @head.transfers_number = 1
+        lambda { @head.save }.should change{ Track.count }.by(2)
+      end
+
+      it 'should not exceed max transfers number' do
+        @head.transfers_number = 2
+        lambda { @head.save }.should change{ Track.count }.by(1)
+      end
+
     end
 
   end
