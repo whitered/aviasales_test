@@ -37,6 +37,7 @@ group :test do
   gem 'turn', :require => false
   gem 'guard-rspec'
   gem 'machinist', '> 2.0.0.beta'
+  gem 'faker'
 
   if RUBY_PLATFORM =~ /linux/i
     gem 'rb-inotify'
