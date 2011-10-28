@@ -153,7 +153,53 @@ describe Track do
       @f12.save!
       @f23.save!
       Track.find_all_by_origin_id_and_destination_id(@c1.id, @c4.id).size.should == 1
-     end
+    end
+
+    context 'join two tracks' do
+
+      before do
+        @c1, @c2, @c3 = City.make!(3)
+        @early_time = DateTime.parse('2011-01-01T00:00:00')
+        @time1 = DateTime.parse('2011-01-18T03:00:00')
+        @time2 = DateTime.parse('2011-01-18T12:00:00')
+        @time3 = DateTime.parse('2011-01-18T21:00:00')
+        @late_time = DateTime.parse('2011-02-01T00:00:00')
+      end
+
+      def make_flight(origin, destination, departure, arrival, save)
+        f = Flight.make(:origin => origin, :destination => destination, :departure => departure, :arrival => arrival)
+        f.save! if save
+        f
+      end
+
+      it 'head arrival should not break allowed transfer interval' do
+        f1 = make_flight(@c1, @c2, @early_time, @time1, true)
+        f2 = make_flight(@c1, @c2, @early_time, @time2, true)
+        f3 = make_flight(@c1, @c2, @early_time, @time3, true)
+        departure = DateTime.parse('2011-01-18T21:10:00')
+        f = make_flight(@c2, @c3, departure, @late_time, false)
+        lambda do
+          f.save
+        end.should change{ Track.count }.by(2)
+        tracks = Track.find_all_by_origin_id_and_destination_id(@c1, @c3)
+        tracks.size.should == 1
+        tracks.first.flights.should == [f2, f]
+      end
+
+      it 'tail departure should not break allowed transfer interval' do
+        f1 = make_flight(@c2, @c3, @time1, @late_time, true)
+        f2 = make_flight(@c2, @c3, @time2, @late_time, true)
+        f3 = make_flight(@c2, @c3, @time3, @late_time, true)
+        arrival = DateTime.parse('2011-01-18T02:50:00')
+        f = make_flight(@c1, @c2, @early_time, arrival, false)
+        lambda do
+          f.save
+        end.should change{ Track.count }.by(2)
+        tracks = Track.find_all_by_origin_id_and_destination_id(@c1, @c3)
+        tracks.size.should == 1
+        tracks.first.flights.should == [f, f2]
+      end
+    end
 
   end
 

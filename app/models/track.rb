@@ -72,11 +72,11 @@ private
   def find_tails
     transfers = (transfers_number == 0) ? 0 : allowed_transfers(transfers_number - 1)
     return if transfers.nil?
-    arrival_from = arrival + MIN_TRANSFER_DURATION
-    arrival_to = arrival + MAX_TRANSFER_DURATION
+    departure_from = arrival + MIN_TRANSFER_DURATION
+    departure_to = arrival + MAX_TRANSFER_DURATION
 
     tracks = Track.where(
-      :arrival => (arrival_from..arrival_to),
+      :departure => (departure_from..departure_to),
       :origin_id => destination_id,
       :transfers_number => transfers
     )
