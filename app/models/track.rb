@@ -17,7 +17,7 @@ class Track < ActiveRecord::Base
 
   def flights
     ids = flight_ids.split(',').map{ |n| n.to_i }
-    records = Flight.find(ids)
+    records = Flight.includes(:origin, :destination).find(ids)
     ids.collect { |id| records.detect { |r| r.id == id }}
   end
 
