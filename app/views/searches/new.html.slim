@@ -1,0 +1,26 @@
+h1 Searches#new
+= simple_form_for @search do |f|
+  = f.association :origin
+  = f.association :destination
+  = f.input :departure_from, :as => :string, :input_html => { :class => :dtp }
+  = f.input :departure_to, :as => :string, :input_html => { :class => :dtp }
+  = f.input :arrival_from, :as => :string, :input_html => { :class => :dtp }
+  = f.input :arrival_to, :as => :string, :input_html => { :class => :dtp }
+  = f.input :max_price, :input_html => { :min => 0 }
+  = f.input :max_transfers, :collection => (0..Track::MAX_TRANSFERS_NUMBER)
+  = f.input :max_track_minutes, :input_html => { :min => 0 }
+  = f.submit
+
+- unless @tracks.nil?
+  - @tracks.each do |track|
+    .track
+      = track.departure
+      = track.arrival
+      = track.price
+
+coffee:
+  $('.dtp').datetimepicker()
+  
+
+
+

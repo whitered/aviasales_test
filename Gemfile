@@ -31,6 +31,8 @@ gem 'jquery-rails'
 # gem 'ruby-debug19', :require => 'ruby-debug'
 
 gem 'therubyracer'
+gem 'slim-rails'
+gem 'simple_form'
 
 group :test do
   # Pretty printed test output

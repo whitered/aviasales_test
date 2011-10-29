@@ -24,3 +24,8 @@ Track.blueprint do
   price { 1000 }
   transfers_number { 0 }
 end
+
+Search.blueprint do
+  origin_id { 1 }
+  destination_id { 2 }
+end
