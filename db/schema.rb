@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111028142838) do
+ActiveRecord::Schema.define(:version => 20111029143913) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -60,6 +60,7 @@ ActiveRecord::Schema.define(:version => 20111028142838) do
     t.integer  "track2_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "flight_ids"
   end
 
   add_index "tracks", ["arrival"], :name => "index_tracks_on_arrival"

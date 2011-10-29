@@ -37,6 +37,13 @@ describe Track do
       t = Track.make!(:flight => flight)
       t.flights.should == [flight]
     end
+
+    it 'should set flight_ids before save' do
+      t = Track.make(:flight => flight)
+      t.flight_ids.should be_nil
+      t.save!
+      t.flight_ids.should == flight.id.to_s
+    end
   end
 
   describe 'complex track' do
@@ -59,6 +66,15 @@ describe Track do
       })
     end
 
+    it 'should set flight_ids before save' do
+      @f12.save!
+      @f23.save!
+      track = Track.make(:track1 => @f12.track, :track2 => @f23.track)
+      track.flight_ids.should be_nil
+      track.save!
+      track.flight_ids.should == "#{@f12.id},#{@f23.id}"
+    end
+
     it 'should have all the flights from its subtracks' do
       cities = City.make!(6)
       flights = (1..5).map{ |n| Flight.make!(:origin => cities[n-1], :destination => cities[n]) }
@@ -68,6 +84,7 @@ describe Track do
       track345 = Track.make!(:track1 => track34, :track2 => tracks[4])
       track = Track.make!(:track1 => track12, :track2 => track345)
       track.flights.should == flights
+      track.flight_ids.should == flights.map { |f| f.id.to_s }.join(',')
     end
 
     it 'should add new track to the tail of existing one' do
@@ -210,12 +227,14 @@ describe Track do
           :destination => @c3,
           :departure => DateTime.parse('2011-11-11 02:00:00'),
           :arrival => DateTime.parse('2011-11-11 03:00:00'),
+          :flight_id => 12,
           :transfers_number => 1
         )
         @head = Track.make(
           :origin => @c1, 
           :destination => @c2, 
           :departure => DateTime.parse('2011-11-11 00:00:00'),
+          :flight_id => 13,
           :arrival => DateTime.parse('2011-11-11 01:00:00')
         )
       end

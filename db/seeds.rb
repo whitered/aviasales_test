@@ -1,7 +1,12 @@
 require 'faker'
 
+#NUM_CITIES = 100
+#MAX_FLIGHTS_FROM_CITY = 400
+#NUM_DAYS = 30
+
 NUM_CITIES = 100
-MAX_FLIGHTS_FROM_CITY = 400
+MAX_FLIGHTS_FROM_CITY = 100
+NUM_DAYS = 7
 
 Track.delete_all
 Flight.delete_all
@@ -17,7 +22,7 @@ City.all.each do |origin|
   rand(MAX_FLIGHTS_FROM_CITY).times do
     destination = City.first(:offset => rand(NUM_CITIES))
     next if destination == origin
-    departure = DateTime.parse("2011-11-#{rand(30) + 1}T#{rand(24)}:#{rand(60)}:00")
+    departure = DateTime.parse("2011-11-#{rand(NUM_DAYS) + 1}T#{rand(24)}:#{rand(60)}:00")
     arrival = departure + (rand(420) + 60).minutes
     price = 10 + rand(990)
     f = Flight.create({
@@ -27,7 +32,7 @@ City.all.each do |origin|
       :arrival => arrival,
       :price => price
     })
-    puts "#{f.departure.to_formatted_s(:short)} -> #{f.arrival.to_formatted_s(:short)}  $#{f.price}\t#{f.origin_id}:#{f.origin.name} -> #{f.destination_id}:#{f.destination.name}"
+    puts "#{f.departure.to_formatted_s(:short)} -> #{f.arrival.to_formatted_s(:short)}    $#{f.price}\t#{f.origin_id}:#{f.origin.name} -> #{f.destination_id}:#{f.destination.name}"
   end
 end
 

@@ -11,15 +11,14 @@ class Track < ActiveRecord::Base
   belongs_to :track1, :class_name => 'Track'
   belongs_to :track2, :class_name => 'Track'
 
+  before_create :set_flight_ids
   after_save :construct_complex_tracks
   after_destroy :destroy_complex_tracks
 
   def flights
-    if flight.nil?
-      track1.flights + track2.flights
-    else
-      [flight]
-    end
+    ids = flight_ids.split(',').map{ |n| n.to_i }
+    records = Flight.find(ids)
+    ids.collect { |id| records.detect { |r| r.id == id }}
   end
 
   def self.create_for flight
@@ -33,6 +32,14 @@ class Track < ActiveRecord::Base
   end
 
 private
+
+  def set_flight_ids
+    if flight_id.nil?
+      self[:flight_ids] = [track1.flight_ids, track2.flight_ids].join(',')
+    else
+      self[:flight_ids] = flight_id.to_s
+    end
+  end
 
   def construct_complex_tracks
     find_heads

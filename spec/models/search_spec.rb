@@ -21,6 +21,7 @@ describe Search do
       @t1 = Track.make!(
         :origin_id => 1,
         :destination_id => 2,
+        :flight_id => 12,
         :departure => DateTime.parse('2011-11-11 11:11:11'),
         :arrival => DateTime.parse('2011-11-11 22:22:22')
       )
@@ -35,6 +36,7 @@ describe Search do
       @t2 = Track.make!(
         :origin_id => 1,
         :destination_id => 2,
+        :flight_id => 4,
         :departure => DateTime.parse('2011-11-11 12:11:11'),
         :arrival => DateTime.parse('2011-11-11 22:22:22')
       )
