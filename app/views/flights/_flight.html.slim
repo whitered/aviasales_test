@@ -1,0 +1,6 @@
+tr.flight
+  td = flight.departure.to_s(:short)
+  td = flight.origin.name
+  td = flight.arrival.to_s(:short)
+  td = flight.destination.name
+  td.price = number_to_currency(flight.price)

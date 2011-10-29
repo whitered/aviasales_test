@@ -12,14 +12,14 @@ h1 Searches#new
   = f.submit
 
 - unless @tracks.nil?
-  - @tracks.each do |track|
-    .track
-      = track.departure
-      = track.arrival
-      = track.price
+ = render @tracks
 
 coffee:
-  $('.dtp').datetimepicker()
+  $('.dtp').datetimepicker({dateFormat: 'yy-mm-dd'})
+  $('.show_flights').click (event) ->
+    console.log(event.target.parentNode)
+    $(event.target.parentNode).toggleClass('open')
+    false
   
 
 

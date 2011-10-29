@@ -41,7 +41,7 @@ describe Search do
       s = Search.new(
         :origin_id => 1,
         :destination_id => 2,
-        :departure_from => DateTime.parse('2011-11-11 12:00:00')
+        :departure_from => '11/11/2011 12:00'
       )
       result = s.find_tracks
       result.size.should == 1

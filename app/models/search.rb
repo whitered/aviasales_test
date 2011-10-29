@@ -14,6 +14,6 @@ class Search < ActiveRecord::Base
     tracks = tracks.where('arrival <= ?', arrival_to) unless arrival_to.nil?
     tracks = tracks.where('price <= ?', max_price) unless max_price.nil?
     tracks = tracks.where('transfers_number <= ?', max_transfers) unless max_transfers.nil?
-    tracks = tracks.limit(20)
+    tracks = tracks.order('price').limit(20)
   end
 end
