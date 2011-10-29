@@ -8,7 +8,6 @@ h1 Searches#new
   = f.input :arrival_to, :as => :string, :input_html => { :class => :dtp }
   = f.input :max_price, :input_html => { :min => 0 }
   = f.input :max_transfers, :collection => (0..Track::MAX_TRANSFERS_NUMBER)
-  = f.input :max_track_minutes, :input_html => { :min => 0 }
   = f.submit
 
 - unless @tracks.nil?

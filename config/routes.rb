@@ -1,5 +1,7 @@
 Avia::Application.routes.draw do
 
+
+  resources :tracks, :only => [:show]
   resources :searches, :only => [:new, :create]
 
   # The priority is based upon order of creation:

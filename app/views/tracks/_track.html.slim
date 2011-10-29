@@ -3,7 +3,5 @@
   time= track.departure.to_s(:short)
   time= track.arrival.to_s(:short)
   span.transfers= track.transfers_number.to_s + ' transfers'
-  a.show_flights href='#' flights >>
-  table.flights
-    = render track.flights
+  = link_to 'show', track
 
